@@ -60,8 +60,7 @@ function test_integers()
     a = [1, 0, -1]
     b = [i for i in 1:n]
     res = ConvolutionTools.conv(a, b)
-    ref = zeros(eltype(res), (n - 2)) .+ 2
-    return all(res .== ref)
+    return all(res .== 2)
 end
 
 function test_mixed_input()
