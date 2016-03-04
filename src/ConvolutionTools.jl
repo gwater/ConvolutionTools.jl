@@ -29,5 +29,8 @@ function conv{T<:Base.LinAlg.BlasFloat, N}(u::Array{T, N}, v::Array{T, N})
     center = [lower[i]:upper[i] for i in 1:N]
     return y[center...]
 end
+conv{T<:Integer, N}(u::Array{T, N}, v::Array{T, N}) = round(Int, conv(float(u), float(v)))
+conv{T<:Integer, S<:Base.LinAlg.BlasFloat, N}(u::Array{T, N}, v::Array{S, N}) = conv(float(u), v)
+conv{T<:Integer, S<:Base.LinAlg.BlasFloat, N}(u::Array{S, N}, v::Array{T, N}) = conv(u, float(v))
 
 end # module

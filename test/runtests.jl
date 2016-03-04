@@ -55,6 +55,23 @@ function test_derivative()
     return isapprox(ref, res)
 end
 
+function test_integers()
+    n = 10
+    a = [1, 0, -1]
+    b = [i for i in 1:n]
+    res = ConvolutionTools.conv(a, b)
+    ref = zeros(eltype(res), (n - 2)) .+ 2
+    return all(res .== ref)
+end
+
+function test_mixed_input()
+    a = [i for i in 1:10]
+    b = float([1, 2, 3])
+    res1 = ConvolutionTools.conv(a, b)
+    res2 = ConvolutionTools.conv(b, a)
+    return isapprox(res1, res2)
+end
+
 custom_handler(r::Test.Success) = print(".")
 custom_handler(r::Test.Failure) = Test.default_handler(r)
 custom_handler(r::Test.Error)   = Test.default_handler(r)
@@ -66,6 +83,8 @@ Test.with_handler(custom_handler) do
     @test test_zero()
     @test test_identity()
     @test test_derivative()
+    @test test_integers()
+    @test test_mixed_input()
 end
 
 println("")
