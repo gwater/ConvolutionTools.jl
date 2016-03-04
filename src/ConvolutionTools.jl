@@ -2,13 +2,12 @@ module ConvolutionTools
 
 import Base.conv
 
-export conv
+export conv, conv_valid
 
 function conv{T<:Base.LinAlg.BlasFloat, N}(u::Array{T, N}, v::Array{T, N})
     su = [size(u)...]
     sv = [size(v)...]
-    sr = abs(su .- sv) .+ 1 # for cropping valid parts
-    sp = su .+ sv .- 1      # for zero-padding
+    sp = su .+ sv .- 1 # for zero-padding
     # pad for efficient FFT
     sp2 = [n > 1024 ? nextprod([2,3,5], n) : nextpow2(n) for n in sp]
     upad = zeros(T, (sp2...))
@@ -22,15 +21,28 @@ function conv{T<:Base.LinAlg.BlasFloat, N}(u::Array{T, N}, v::Array{T, N})
     end
     # perform convolution
     y = p \ ((p * upad) .* (p * vpad))
-    # only return valid part
-    invalid = div(sp .- sr,  2)
-    lower = invalid .+ 1
-    upper = invalid .+ sr
-    center = [lower[i]:upper[i] for i in 1:N]
-    return y[center...]
+    # undo FFT padding
+    full = [1:sp[i] for i in 1:N]
+    return y[full...]
 end
 conv{T<:Integer, N}(u::Array{T, N}, v::Array{T, N}) = round(Int, conv(float(u), float(v)))
 conv{T<:Integer, S<:Base.LinAlg.BlasFloat, N}(u::Array{T, N}, v::Array{S, N}) = conv(float(u), v)
 conv{T<:Integer, S<:Base.LinAlg.BlasFloat, N}(u::Array{S, N}, v::Array{T, N}) = conv(u, float(v))
+
+function strip_invalid{T, S, N}(output::Array{T, N}, stencil::Array{S, N})
+    shape_padded = [size(output)...]
+    shape_stencil = [size(stencil)...]
+    shape_valid = shape_padded .- 2 .* (shape_stencil .- 1)
+    invalid = shape_stencil .- 1
+    lower = invalid .+ 1
+    upper = invalid .+ shape_valid
+    center = [lower[i]:upper[i] for i in 1:N]
+    return output[center...]
+end
+
+function conv_valid(data, stencil)
+    full = conv(data, stencil)
+    return strip_invalid(full, stencil)
+end
 
 end # module
