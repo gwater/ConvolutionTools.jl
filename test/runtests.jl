@@ -14,35 +14,35 @@ end
 function test_1d()
     a = rand((2))
     b = rand((7))
-    res = conv(a, b)
+    res = ConvolutionTools.conv(a, b)
     return ndims(res) == 1 && eltype(res) <: Number
 end
 
 function test_2d()
     a = rand((1, 2))
     b = rand((6, 7))
-    res = conv(a, b)
+    res = ConvolutionTools.conv(a, b)
     return ndims(res) == 2 && eltype(res) <: Number
 end
 
 function test_3d()
     a = rand((1, 2, 3))
     b = rand((6, 7, 10))
-    res = conv(a, b)
+    res = ConvolutionTools.conv(a, b)
     return ndims(res) == 3 && eltype(res) <: Number
 end
 
 function test_identity()
     a = float([1])
     b = float([i^2 for i in 1:100])
-    res = conv(a, b)
+    res = ConvolutionTools.conv(a, b)
     return isapprox(b, res)
 end
 
 function test_zero()
     a = float([0])
     b = float([i^2 for i in 1:100])
-    res = conv(a, b)
+    res = ConvolutionTools.conv(a, b)
     return all(res .== zero(eltype(res)))
 end
 
@@ -50,7 +50,7 @@ function test_derivative()
     n = 10
     a = float([1, 0, -1]) / 2
     b = float([0.5 * i^2 for i in 1:n])
-    res = conv(a, b)
+    res = ConvolutionTools.conv(a, b)
     ref = float([i for i in 2:(n-1)])
     return isapprox(ref, res)
 end
