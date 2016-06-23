@@ -2,7 +2,21 @@ module ConvolutionTools
 
 import Base.conv
 
-export conv, conv_valid
+export conv, conv_valid, pad_const
+
+"""
+    pad_const(a, n[, c])
+
+Pads any multidimensional array with `n[i]` constant values `c` on both sides.
+Returns an array of size `size(a) + 2*n`.
+"""
+function pad_const(a::Array, n::Array{Int, 1}, c=0)
+    shape = collect(size(a)) .+ 2 .* n
+    b = zeros(eltype(a), shape...) .+ c
+    block = [(n[i] + 1):(size(a)[i] + n[i]) for i in 1:length(n)]
+    b[block...] = a
+    return b
+end
 
 function conv{T<:Base.LinAlg.BlasFloat, N}(u::Array{T, N}, v::Array{T, N})
     su = [size(u)...]

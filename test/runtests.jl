@@ -11,6 +11,21 @@ function isapprox{T, N}(a::Array{T, N}, b::Array{T, N}, eps=10e-10)
     return el_diff < eps
 end
 
+function test_pad_const_1d()
+    a = rand(3)
+    n = [1]
+    c = 2.3
+    res = pad_const(a, n, c)
+    return length(res) == 5 && res[1] == c && res[end] == c && typeof(res) == typeof(a)
+end
+
+function test_pad_const_2d()
+    a = rand(3, 2)
+    n = [1, 3]
+    res = pad_const(a, n)
+    return size(res) == (5, 8)
+end
+
 function test_1d()
     a = rand((7))
     b = rand((2))
@@ -76,6 +91,8 @@ custom_handler(r::Test.Failure) = Test.default_handler(r)
 custom_handler(r::Test.Error)   = Test.default_handler(r)
 
 Test.with_handler(custom_handler) do
+    @test test_pad_const_1d()
+    @test test_pad_const_2d()
     @test test_1d()
     @test test_2d()
     @test test_3d()
